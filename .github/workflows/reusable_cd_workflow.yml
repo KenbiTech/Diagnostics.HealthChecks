@@ -32,4 +32,4 @@ jobs:
       - name: Pack
         run: dotnet pack --no-build ${{inputs.PROJECT_PATH}} -c ${{inputs.BUILD_CONFIG}} -o ./artifacts
       - name: Publish
-        run: dotnet nuget push ./artifacts/${{inputs.PACKAGE_NAME}}.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./artifacts/${{inputs.PACKAGE_NAME}}.*.nupkg -s https://kenbi-artifacts-567677647219.d.codeartifact.eu-central-1.amazonaws.com/nuget/nuget-store/v3/index.json --skip-duplicate
