@@ -1,6 +1,7 @@
 name: HealthChecks UI CD
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - release-ui-*
