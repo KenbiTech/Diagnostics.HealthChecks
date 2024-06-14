@@ -10,6 +10,7 @@ jobs:
   build:
     env:
       BUILD_CONFIG: Release
+      SERVER: https://kenbi-artifacts-567677647219.d.codeartifact.eu-central-1.amazonaws.com/nuget/nuget-store/v3/index.json
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -81,22 +82,22 @@ jobs:
       - name: Pack UI.K8s.Operator
         run: dotnet pack --no-build ./src/HealthChecks.UI.K8s.Operator/HealthChecks.UI.K8s.Operator.csproj -c $BUILD_CONFIG -o ./artifacts
       - name: Publish UI Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
       - name: Publish UI.Client Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.Client.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.Client.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
       - name: Publish UI.Core Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.Core.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.Core.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
       - name: Publish UI.Data Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.Data.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.Data.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
       - name: Publish UI.InMemory.Storage Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.InMemory.Storage.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.InMemory.Storage.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
       - name: Publish UI.MySql.Storage Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.MySql.Storage.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.MySql.Storage.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
       - name: Publish UI.PostgreSQL.Storage Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.PostgreSQL.Storage.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.PostgreSQL.Storage.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
       - name: Publish UI.SQLite.Storage Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.SQLite.Storage.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.SQLite.Storage.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
       - name: Publish UI.SqlServer.Storage Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.SqlServer.Storage.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.SqlServer.Storage.*.nupkg -s ${{ env.SERVER }} --skip-duplicate
       - name: Publish UI.K8s.Operator Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.K8s.Operator.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.K8s.Operator.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
