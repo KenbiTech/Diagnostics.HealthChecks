@@ -1,17 +1,22 @@
 name: HealthChecks UI CD
 
 on:
+
   workflow_dispatch:
-  push:
-    tags:
-      - release-ui-*
-      - release-all-*
+    inputs:
+      nuget-store:
+        description : "AWS Code Artifact Store"
+      aws-role:
+        description: "AWS role that authenticates to CodeArtifact"
+        required: true
+      aws-region:
+        description: "AWS region for environment"
+        required: true
 
 jobs:
   build:
     env:
       BUILD_CONFIG: Release
-      SERVER: https://kenbi-artifacts-567677647219.d.codeartifact.eu-central-1.amazonaws.com/nuget/nuget-store/v3/index.json
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -62,6 +67,31 @@ jobs:
         run: dotnet build --no-restore ./src/HealthChecks.UI.SqlServer.Storage/HealthChecks.UI.SqlServer.Storage.csproj -c $BUILD_CONFIG
       - name: Build UI.K8s.Operator
         run: dotnet build --no-restore ./src/HealthChecks.UI.K8s.Operator/HealthChecks.UI.K8s.Operator.csproj -c $BUILD_CONFIG
+      
+      - name: Authenticate to AWS Code Artifact
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ inputs.aws-region }}
+          role-to-assume: ${{ inputs.aws-role }}
+          unset-current-credentials: true
+  
+          # We need a few steps in order to keep the authorization token secret in the logs and add it as an environment variable
+      - name: Configure AWS Code Artifact source for dotnet
+        id: get-token
+        run: |
+          TOKEN_RESPONSE=$(aws codeartifact get-authorization-token --domain kenbi-artifacts)
+          AUTH_TOKEN=$(jq --join-output '.authorizationToken' <<< "$TOKEN_RESPONSE")
+          echo "token=$AUTH_TOKEN" >> "$GITHUB_OUTPUT"
+  
+          if [ -e ./nuget.config ]
+          then
+              dotnet nuget update source aws/kenbi -u aws -p $AUTH_TOKEN --store-password-in-clear-text --configfile ./nuget.config
+          else
+              echo "No nuget.config file found!"
+          fi
+        shell: bash
+  
+
       - name: Pack UI
         run: dotnet pack --no-build ./src/HealthChecks.UI/HealthChecks.UI.csproj -c $BUILD_CONFIG -o ./artifacts
       - name: Pack UI.Client
@@ -83,22 +113,22 @@ jobs:
       - name: Pack UI.K8s.Operator
         run: dotnet pack --no-build ./src/HealthChecks.UI.K8s.Operator/HealthChecks.UI.K8s.Operator.csproj -c $BUILD_CONFIG -o ./artifacts
       - name: Publish UI Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.*.nupkg  -s ${{ inputs.nuget-store }} --skip-duplicate
       - name: Publish UI.Client Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.Client.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.Client.*.nupkg  -s ${{ inputs.nuget-store }} --skip-duplicate
       - name: Publish UI.Core Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.Core.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.Core.*.nupkg  -s ${{ inputs.nuget-store }} --skip-duplicate
       - name: Publish UI.Data Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.Data.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.Data.*.nupkg  -s ${{ inputs.nuget-store}} --skip-duplicate
       - name: Publish UI.InMemory.Storage Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.InMemory.Storage.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.InMemory.Storage.*.nupkg  -s ${{ inputs.nuget-store }} --skip-duplicate
       - name: Publish UI.MySql.Storage Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.MySql.Storage.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.MySql.Storage.*.nupkg  -s ${{ inputs.nuget-store }} --skip-duplicate
       - name: Publish UI.PostgreSQL.Storage Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.PostgreSQL.Storage.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.PostgreSQL.Storage.*.nupkg  -s ${{ inputs.nuget-store }} --skip-duplicate
       - name: Publish UI.SQLite.Storage Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.SQLite.Storage.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.SQLite.Storage.*.nupkg  -s ${{ inputs.nuget-store }} --skip-duplicate
       - name: Publish UI.SqlServer.Storage Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.SqlServer.Storage.*.nupkg -s ${{ env.SERVER }} --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.SqlServer.Storage.*.nupkg -s ${{ inputs.nuget-store }} --skip-duplicate
       - name: Publish UI.K8s.Operator Health Check
-        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.K8s.Operator.*.nupkg  -s ${{ env.SERVER }} --skip-duplicate
+        run: dotnet nuget push ./artifacts/AspNetCore.HealthChecks.UI.K8s.Operator.*.nupkg  -s ${{ inputs.nuget-store }} --skip-duplicate
