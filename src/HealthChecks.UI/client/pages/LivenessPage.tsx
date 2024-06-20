@@ -22,7 +22,7 @@ const LivenessPage: React.FunctionComponent<LivenessProps> = ({ apiSettings }) =
     const tableContainerRef = useRef<HTMLDivElement>(null);
     const [fetchInterval, setFetchInterval] = useState<number | false>(apiSettings.pollingInterval * 1000);
     const [running, setRunning] = useState<boolean>(true);
-    
+
     const { data: livenessData, isError } = useQuery("healthchecks", getHealthChecks,
         { refetchInterval: fetchInterval, keepPreviousData: true, retry: 1 });
 
@@ -35,7 +35,7 @@ const LivenessPage: React.FunctionComponent<LivenessProps> = ({ apiSettings }) =
             setFetchInterval(false);
             return;
         }
-        setFetchInterval(apiSettings.pollingInterval * 1000);
+        // setFetchInterval(apiSettings.pollingInterval * 1000);
     }, [running]);
 
     const expandAll = useCallback(() => {
