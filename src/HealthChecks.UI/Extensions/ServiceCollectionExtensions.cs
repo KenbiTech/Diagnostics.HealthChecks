@@ -33,7 +33,7 @@ public static class ServiceCollectionExtensions
 
         services
             .AddHostedService<UIInitializationHostedService>()
-            .AddHostedService<HealthCheckCollectorHostedService>()
+            //.AddHostedService<HealthCheckCollectorHostedService>() // Disable background task that refresh the endpoint
             .AddKubernetesDiscoveryService()
             .AddApiEndpointHttpClient()
             .AddWebhooksEndpointHttpClient();
