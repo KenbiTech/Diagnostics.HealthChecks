@@ -6,6 +6,7 @@ import { useQuery } from 'react-query';
 import { getHealthChecks } from '../api/fetchers';
 import { LivenessMenu } from '../components/LivenessMenu';
 import { AlertPanel } from '../components/AlertPanel';
+import uiSettings from "../config/UISettings";
 
 interface LivenessState {
     error: Nullable<string>;
@@ -27,16 +28,11 @@ const LivenessPage: React.FunctionComponent<LivenessProps> = ({ apiSettings }) =
         { refetchInterval: fetchInterval, keepPreviousData: true, retry: 1 });
 
     useEffect(() => {
+        console.log(uiSettings.uiApiEndpoint);
+        console.log(livenessData);
         console.log(`Configured polling interval: ${fetchInterval} milliseconds`);
     }, []);
 
-    useEffect(() => {
-        if (!running) {
-            setFetchInterval(false);
-            return;
-        }
-        setFetchInterval(apiSettings.pollingInterval * 1000);
-    }, [running]);
 
     const expandAll = useCallback(() => {
         const tableElement = tableContainerRef.current!;
@@ -67,13 +63,6 @@ const LivenessPage: React.FunctionComponent<LivenessProps> = ({ apiSettings }) =
 
     return (
         <article className="hc-liveness">
-            <header className="hc-liveness__header">
-                <h1>{apiSettings.headerText}</h1>
-                <LivenessMenu
-                    pollingInterval={apiSettings.pollingInterval}
-                    running={running}
-                    onRunningClick={() => setRunning(!running)} />
-            </header>
             {isError ? (
                 <AlertPanel message="Could not retrieve health checks data" />
             ) : null}
