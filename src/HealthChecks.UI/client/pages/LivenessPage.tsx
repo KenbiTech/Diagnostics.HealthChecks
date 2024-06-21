@@ -6,7 +6,6 @@ import { useQuery } from 'react-query';
 import { getHealthChecks } from '../api/fetchers';
 import { LivenessMenu } from '../components/LivenessMenu';
 import { AlertPanel } from '../components/AlertPanel';
-import uiSettings from "../config/UISettings";
 
 interface LivenessState {
     error: Nullable<string>;
@@ -28,8 +27,6 @@ const LivenessPage: React.FunctionComponent<LivenessProps> = ({ apiSettings }) =
         { refetchInterval: fetchInterval, keepPreviousData: true, retry: 1 });
 
     useEffect(() => {
-        console.log(uiSettings.uiApiEndpoint);
-        console.log(livenessData);
         console.log(`Configured polling interval: ${fetchInterval} milliseconds`);
     }, []);
 
